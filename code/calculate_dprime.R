@@ -1,8 +1,12 @@
-calculate_dprime <- function(data) {
+calculate_dprime <- function(data, group) {
+
+  if (group == 'human') {
+    trial_info <- rep(0, dim(data)[1])
+  } else if (group == 'monkey') {
+    trial_info <- rep(0, length(data))
+  }
   
-  trial_info <- rep(0, dim(data)[1])
-  
-  for (t in 1:length(trial_info)) {
+  for (t in 1:dim(data)[1]) {
     if (data[t, 1] == 1 && data[t, 2] == 1) {
       trial_info[t] <- 1  # hits
     } else if (data[t, 1] == -1 && data[t, 2] == 1) {
