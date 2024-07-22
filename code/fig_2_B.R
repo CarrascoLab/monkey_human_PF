@@ -82,6 +82,7 @@ data_tbl <- data_tbl %>%
 data_tbl$location <- factor(data_tbl$location, levels = c('UVM', 'LVM', 'LHM', 'RHM'))
 
 library(plyr)
+
 data_summary <- function(data, varname, groupnames) {
   summary_func <- function(x, col) {
     c(mean = mean(x[[col]], na.rm = TRUE),

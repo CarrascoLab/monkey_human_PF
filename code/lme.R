@@ -6,17 +6,13 @@ library(MuMIn)
 library(sjPlot)
 library(sjmisc)
 library(ggplot2)
-library(export)
+#library(export)
 library(emmeans)
 library(insight)
 library(tidyr)
 
 ### CODE TO RUN LINEAR MIXED EFFECTS. MODEL ON THE MONKEY HUMAN PERFORMANCE FIELDS STUDY ###
 # CODED BY: Ekin Tünçok, 2023-2024
-
-# make sure to set this directory to where the Git repository lies:
-directory = "/Volumes/purplab/EXPERIMENTS/1_Current_Experiments/Ekin/monkeyPF"
-setwd(directory)
 
 # comparing Asymmetry ratio or dprime data:
 file_name = "data"
@@ -88,5 +84,5 @@ show(table_stats)
 set_theme(base = theme_light())
 pp1 <-plot(emm$` of group, loc_model_cont`, horizontal=FALSE, colors=c("black","dark grey","grey","red")) + theme_bw()+coord_flip()
 
-graph2ppt(file="ggplot2_plot.pptx", width=5, height=5) 
+# graph2ppt(file="ggplot2_plot.pptx", width=5, height=5) 
 
