@@ -14,7 +14,7 @@ fig_2_A <- function(human, monkey) {
   polar.plot(c(monkey$full_visual_field_dprime, monkey$full_visual_field_dprime[1]),angle_pos, lwd = 3, lty = 1, line.col = 'red',
              point.col = 'red', 
              point.symbols = 1, cex = 1, show.grid = TRUE, rp.type = "spline", 
-             labels = c(0, 45, 90, 135, 180, 225, 270, 315), show.grid.labels = 0, radial.lim=c(0,1.5))
+             labels = c(0, 45, 90, 135, 180, 225, 270, 315), show.grid.labels = 0, radial.lim=c(0,1.5), show.legend = FALSE)
   
   
   for (i in seq_along(angle_pos)) {

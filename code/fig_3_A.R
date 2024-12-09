@@ -1,7 +1,9 @@
 fig_3_A <- function(monkey) {
   
   monkey_fellow_data <- monkey$dprime[1,,]
+  monkey_fellow_data <- monkey_fellow_data[-2,] # removes the control animal
   monkey_amb_data <- monkey$dprime[2,,]
+  monkey_amb_data <- monkey_amb_data[-2,]
   
   monkey.amb.norm <- monkey_amb_data 
   monkey.fellow.norm <- monkey_fellow_data
@@ -68,7 +70,10 @@ fig_3_A <- function(monkey) {
   # look at the RT data
   monkeyrt_across_att <- apply(monkey$reaction_time, c(1, 3, 4), mean)
   monkey_fellow_data <- monkeyrt_across_att[1,,]
+  monkey_fellow_data <- monkey_fellow_data[-2,]
   monkey_amb_data <- monkeyrt_across_att[2,,]
+  monkey_amb_data <- monkey_amb_data[-2,]
+  
   
   monkey.amb.norm <- monkey_amb_data 
   monkey.fellow.norm <- monkey_fellow_data 
@@ -127,12 +132,14 @@ fig_3_A <- function(monkey) {
     arrows(x_start, y_start, x_end, y_end, angle = 90, code = 3, length = 0, col = '#807DBA', lwd = 4)
   }
   
-  #graph2ppt(file="supp_1_A_monkeytwoeyes_RT.pptx", width=5, height=5) 
+  #graph2ppt(file="savingDraft.pptx", width=5, height=5) 
   
   # Fig 3 A: Bar plots
   # Convert the matrix to a data frame
   monkey_fellow_data <- monkey$dprime[1,,]
   monkey_amb_data <- monkey$dprime[2,,]
+  monkey_fellow_data <- monkey_fellow_data[-2,]
+  monkey_amb_data <- monkey_amb_data[-2,]
   monkey_amb_data_df <- as.data.frame(monkey_amb_data)
   monkey_fellow_data_df <- as.data.frame(monkey_fellow_data)
   
