@@ -1,8 +1,14 @@
-save_data <- function(human, monkey){
+save_data <- function(human, monkey, human_mono, comp_cond){
   # long script to save all the data needed for statistical analysis:
   
   # Required libraries
   library(dplyr)
+  
+  if (comp_cond == 1) {
+    add_label = 'monocularParticipants'
+  } else if (comp_cond == 0) {
+    add_label = 'allBinocularParticipants'
+  }
   
   # Data preparation
   var_names <- c("id","group", "RHM", "IC_NE", "UVM", "IC_NW","LHM","IC_SW", "LVM", "IC_SE")
@@ -32,8 +38,86 @@ save_data <- function(human, monkey){
   data_table$IC_SE <- c(human$dprime[,8], monkey_dprime_mean[,8])
   
   # Write to CSV file
-  write.csv(data_table, file.path(project_dir, 'data_to_analyze', 'data_botheyes_all_locs.csv'), row.names = FALSE, quote = TRUE)
+  write.csv(data_table, file.path(project_dir, 'data_to_analyze', sprintf('data_botheyes_all_locs_%s.csv', add_label)), row.names = FALSE, quote = TRUE)
   print('>>> Main data file is saved!')
+  
+  ######
+  # Create the data frame
+  var_names <- c("id","group", "RHM", "IC_NE", "UVM", "IC_NW","LHM","IC_SW", "LVM", "IC_SE")
+  
+  data_table <- data.frame(matrix(ncol = length(var_names), nrow = dim(human$dprime)[1] +dim(monkey$dprime)[2]))
+  colnames(data_table) <- var_names
+  
+  # Assign id column
+  data_table$id <- 1:(dim(human$dprime)[1] +dim(monkey$dprime)[2])
+  
+  # Assign group column
+  data_table$group[1:dim(human$dprime)[1]] <- 1
+  data_table$group[(dim(human$dprime)[1] + 1):(dim(human$dprime)[1] + dim(monkey$dprime)[2])] <- 2
+  
+  # Assign the dprime columns
+  data_table$RHM <- c(human$dprime_normalized[,1], monkey$dprime_normalized[,1])
+  data_table$UVM <- c(human$dprime_normalized[,3], monkey$dprime_normalized[,3])
+  data_table$LHM <- c(human$dprime_normalized[,5], monkey$dprime_normalized[,5])
+  data_table$LVM <- c(human$dprime_normalized[,7], monkey$dprime_normalized[,7])
+
+  # Write to CSV file
+  write.csv(data_table, file.path(project_dir, 'data_to_analyze', sprintf('normalized_data_botheyes_cardinals_%s.csv',add_label)), row.names = FALSE, quote = TRUE)
+  print('>>> Normalized data file is saved!')
+  
+  ######
+  # Create the data frame
+  var_names <- c("id","group", "RHM", "UVM","LHM", "LVM")
+  
+  data_table <- data.frame(matrix(ncol = length(var_names), nrow = dim(human$dprime)[1] + dim(human_mono$dprime)[1] + dim(monkey$dprime)[2]))
+  colnames(data_table) <- var_names
+  
+  # Assign id column
+  data_table$id <- 1:(dim(human$dprime)[1] + dim(human_mono$dprime)[1] + dim(monkey$dprime)[2])
+  
+  # Assign group column
+  data_table$group[1:dim(human$dprime)[1]] <- 1
+  data_table$group[(dim(human$dprime)[1] + 1):(dim(human$dprime)[1] + dim(human_mono$dprime)[1])] <- 3
+  data_table$group[(dim(human_mono$dprime)[1] + dim(human$dprime)[1] + 1):(dim(human_mono$dprime)[1] + dim(human$dprime)[1] + dim(monkey$dprime)[2])] <- 2
+  
+  # Assign the dprime columns
+  data_table$RHM <- c(human$dprime_normalized[,1], human_mono$dprime_normalized[,1], monkey$dprime_normalized[,1])
+  data_table$UVM <- c(human$dprime_normalized[,3], human_mono$dprime_normalized[,3], monkey$dprime_normalized[,3])
+  data_table$LHM <- c(human$dprime_normalized[,5], human_mono$dprime_normalized[,5], monkey$dprime_normalized[,5])
+  data_table$LVM <- c(human$dprime_normalized[,7], human_mono$dprime_normalized[,7], monkey$dprime_normalized[,7])
+  
+  # Write to CSV file
+  write.csv(data_table, file.path(project_dir, 'data_to_analyze', sprintf('normalized_data_wbinocularhuman_cardinals_%s.csv', add_label)), row.names = FALSE, quote = TRUE)
+  print('>>> Normalized data file for the monocular session is saved!')
+  
+  
+  # Data preparation
+  var_names <- c("id","group", "RHM", "UVM","LHM", "LVM")
+  
+  # Combine data and calculate the mean for monkey.dprime
+  monkey_dprime_mean <- apply(monkey$dprime, c(2, 3), mean)
+  
+  data_table <- data.frame(matrix(ncol = length(var_names), nrow = dim(human$dprime)[1] + dim(human_mono$dprime)[1] + dim(monkey$dprime)[2]))
+  colnames(data_table) <- var_names
+  
+  # Assign id column
+  data_table$id <- 1:(dim(human$dprime)[1] + dim(human_mono$dprime)[1] + dim(monkey$dprime)[2])
+  
+  # Assign group column
+  data_table$group[1:dim(human$dprime)[1]] <- 1
+  data_table$group[(dim(human$dprime)[1] + 1):(dim(human$dprime)[1] + dim(human_mono$dprime)[1])] <- 3
+  data_table$group[(dim(human_mono$dprime)[1] + dim(human$dprime)[1] + 1):(dim(human_mono$dprime)[1] + dim(human$dprime)[1] + dim(monkey$dprime)[2])] <- 2
+  
+  
+  # Assign the dprime columns
+  data_table$RHM <- c(human$dprime[,1], human_mono$dprime[,1], monkey_dprime_mean[,1])
+  data_table$UVM <- c(human$dprime[,3], human_mono$dprime[,3], monkey_dprime_mean[,3])
+  data_table$LHM <- c(human$dprime[,5], human_mono$dprime[,5], monkey_dprime_mean[,5])
+  data_table$LVM <- c(human$dprime[,7], human_mono$dprime[,7],monkey_dprime_mean[,7])
+  
+  # Write to CSV file
+  write.csv(data_table, file.path(project_dir, 'data_to_analyze', sprintf('data_wbinocularhuman_cardinals_%s.csv', add_label)), row.names = FALSE, quote = TRUE)
+  print('>>> Non-normalized, cardinal data w binocular session are saved!')
   
   ########
   # Extract data for amblyopic and fellow eyes
@@ -124,28 +208,6 @@ save_data <- function(human, monkey){
   # Write to CSV file
   write.csv(data_table, file.path(project_dir, 'data_to_analyze', 'human_data'), row.names = FALSE, quote = TRUE)
   print('>>> Human data file is saved!')
-  
-  # Define column names
-  var_names <- c("id", "group", "HVA", "VMA")
-  
-  # Create the data frame
-  tablesize <- nrow(human$asymmetries) + nrow(monkey$asymmetries)
-  data_table <- data.frame(matrix(ncol = length(var_names), nrow = tablesize))
-  colnames(data_table) <- var_names
-  
-  # Assign id column
-  data_table$id <- 1:tablesize
-  
-  # Assign group column
-  data_table$group[1:nrow(human$asymmetries)] <- 1
-  data_table$group[(nrow(human$asymmetries) + 1):tablesize] <- 2
-  
-  # Assign the asymmetry columns
-  data_table$HVA <- c(human$asymmetries[, 1], monkey$asymmetries[, 1])
-  data_table$VMA <- c(human$asymmetries[, 2], monkey$asymmetries[, 2])
-  
-  # Write to CSV file
-  write.csv(data_table, file.path(project_dir, 'data_to_analyze', 'asymmetry_ratio_botheyes.csv'), row.names = FALSE, quote = TRUE)
   
   
 }
