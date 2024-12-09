@@ -1,4 +1,4 @@
-fig_3_A <- function(monkey) {
+fig_3 <- function(monkey) {
   
   monkey_fellow_data <- monkey$dprime[1,,]
   monkey_fellow_data <- monkey_fellow_data[-2,] # removes the control animal

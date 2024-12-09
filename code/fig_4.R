@@ -1,4 +1,4 @@
-fig_3_B <- function(monkey) {
+fig_4 <- function(monkey) {
   
   # part 2: look at the attention effect
   monkey_cued <- apply(monkey$dprime_attention_conds[,2,,], c(2, 3), mean)

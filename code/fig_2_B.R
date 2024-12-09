@@ -1,20 +1,8 @@
-# Load necessary libraries
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-library(plotrix)
-# library(export) # UNCOMMENT IF SAVING THE PRODUCED PLOT!
-library(superb)
-library(rstatix)
-
-# Set the working directory and file names
-directory = "/Volumes/purplab/EXPERIMENTS/1_Current_Experiments/Ekin/monkeyPF"
-setwd(directory)
+fig_2_B <- function(directory) {
 
 # File paths for new data including the third group
 file_name = "data_wbinocularhuman"
 location_info = "cardinals"
-comp_cond = 0
 
 if (comp_cond == 1) {
   add_label = 'monocularParticipants'
@@ -143,4 +131,6 @@ p <- ggplot(df2_updated, aes(x = location, y = sensitivity, fill = group)) +
 print(p)
 
 # Save the plot if needed
-graph2office(file = "templatePlot.pptx", width = 5, height = 3)
+#graph2office(file = "templatePlot.pptx", width = 5, height = 3)
+
+}

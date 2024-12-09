@@ -1,68 +1,53 @@
-# Load necessary libraries
-library(ggplot2)
+fig_2_C <- function(human, human_mono, monkey) {  
 
-# Prepare individual data frames for each group, updating the label to "Human Monocular"
-human_data <- as.data.frame(human$dprime_normalized) %>%
-  mutate(group = "Human", color = "black")
-human_monocular_data <- as.data.frame(human_mono$dprime_normalized) %>%
-  mutate(group = "Human Monocular", color = "gray")
-monkey_data <- as.data.frame(monkey$dprime_normalized) %>%
-  mutate(group = "Monkey", color = "red")  # Set color to red for Monkey group
+# Extract the asymmetry data from each group and convert it to a data frame
+# Each group's asymmetries have columns "HVA" and "VMA"
+human_data <- as.data.frame(human$asymmetries) %>% mutate(group = "Human")
+colnames(human_data) <- c("HVA", "VMA", "group")
 
-# Combine data into one data frame
-combined_data <- bind_rows(human_data, human_monocular_data, monkey_data)
+human_mono_data <- as.data.frame(human_mono$asymmetries) %>% mutate(group = "Human Binocular")
+colnames(human_mono_data) <- c("HVA", "VMA", "group")
 
-# Rename columns for clarity
-colnames(combined_data)[c(3, 7)] <- c("Upper_VM", "Lower_VM")
+monkey_data <- as.data.frame(monkey$asymmetries) %>% mutate(group = "Monkey")
+colnames(monkey_data) <- c("HVA", "VMA", "group")
 
-# Convert `group` to a factor with specified levels to ensure legend includes all groups
-combined_data$group <- factor(combined_data$group, levels = c("Human", "Monkey", "Human Monocular"))
+# Combine all data into one data frame
+combined_asymmetry_data <- bind_rows(human_data, human_mono_data, monkey_data)
 
-# Calculate group means for each group
-group_means <- combined_data %>%
-  group_by(group) %>%
-  summarise(
-    mean_upper_vm = mean(Upper_VM, na.rm = TRUE),
-    mean_lower_vm = mean(Lower_VM, na.rm = TRUE)
-  ) %>%
-  mutate(color = c("black", "red", "gray"))  # Ensure color for group means is consistent
+# Reshape the data to long format for easier plotting
+long_asymmetry_data <- combined_asymmetry_data %>%
+  pivot_longer(cols = c("HVA", "VMA"), names_to = "Asymmetry", values_to = "Ratio") %>%
+  mutate(group = factor(group, levels = c("Human", "Monkey", "Human Binocular")),
+         Asymmetry = factor(Asymmetry, levels = c("HVA", "VMA")))
 
-# Determine common axis range across all points and means
-all_values <- c(combined_data$Upper_VM, combined_data$Lower_VM, group_means$mean_upper_vm, group_means$mean_lower_vm)
-axis_limits <- range(all_values, na.rm = TRUE)
-
-# Create the scatter plot with smaller circles for individual points and consistent stroke width
-p <- ggplot() +
-  # Plot individual points for each subject with smaller size and consistent outline (circle)
-  geom_point(data = combined_data, aes(x = Upper_VM, y = Lower_VM, color = group), shape = 21, size = 2, stroke = 1.5) +
-  # Plot group means with a cross shape and larger size
-  geom_point(data = group_means, aes(x = mean_upper_vm, y = mean_lower_vm, color = group), shape = 3, size = 5, stroke = 2) +
-  # Add the unity line (y = x) for reference
-  geom_abline(slope = 1, intercept = 0, linetype = "solid", color = "black") +
-  # Add x and y axis lines
-  geom_hline(yintercept = 0, color = "black") +
-  geom_vline(xintercept = 0, color = "black") +
-  labs(x = "Upper Vertical Meridian (d')", y = "Lower Vertical Meridian (d')", color = "Group") +
-  scale_color_manual(values = c("Human" = "black", "Monkey" = "red", "Human Monocular" = "gray")) +
-  coord_equal(xlim = axis_limits, ylim = axis_limits) +  # Equal axis range and square layout
-  theme_minimal() +
-  theme(
-    axis.title = element_text(size = 14, face = "bold"),
-    axis.text = element_text(size = 12),
-    legend.position = "top"
+# Calculate means and standard errors for each group and asymmetry
+summary_asymmetry_data <- long_asymmetry_data %>%
+  group_by(group, Asymmetry) %>%
+  dplyr::summarise(
+    mean_ratio = mean(Ratio, na.rm = TRUE),
+    se = sd(Ratio, na.rm = TRUE) / sqrt(length(Ratio)),
+    .groups = 'drop'
   )
 
+# Set color mapping for groups as requested
+color_mapping <- c("Human" = "black", "Monkey" = "red", "Human Binocular" = "gray")
+
+# Create the plot
+plot_asymmetry <- ggplot(summary_asymmetry_data, aes(x = Asymmetry, y = mean_ratio, color = group)) +
+  geom_point(aes(shape = group), size = 4, position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = mean_ratio - se, ymax = mean_ratio + se),
+                width = 0.2, position = position_dodge(width = 0.5)) +
+  scale_color_manual(values = color_mapping) +
+  labs(x = "", y = "Ratio of Perceptual Asymmetry") +
+  theme_minimal() +
+  theme(
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(size = 12),
+    legend.position = "none"
+  ) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  facet_grid(. ~ Asymmetry)
+
 # Print the plot
-print(p)
-
-# Export the plot to PowerPoint
-# Note: Ensure the "officer" and "rvg" packages are installed to enable export
-library(officer)
-library(rvg)
-dml_pptx <- dml(ggobj = p)
-read_pptx() %>%
-  add_slide(layout = "Title and Content", master = "Office Theme") %>%
-  ph_with(dml_pptx, location = ph_location_fullsize()) %>%
-
-  
-print(target = "templatePlot.pptx")
+print(plot_asymmetry)
+}
